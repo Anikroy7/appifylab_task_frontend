@@ -157,6 +157,11 @@ export const postApi = createApi({
             }),
             invalidatesTags: ['Post'],
         }),
+
+        getPostLikes: builder.query<{ success: boolean; statusCode: number; message: string; data: Like[] }, string>({
+            query: (postId) => `/posts/${postId}/likes`,
+            providesTags: ['Post'],
+        }),
     }),
 });
 
@@ -169,4 +174,5 @@ export const {
     useToggleCommentLikeMutation,
     useAddReplyMutation,
     useToggleReplyLikeMutation,
+    useGetPostLikesQuery,
 } = postApi;

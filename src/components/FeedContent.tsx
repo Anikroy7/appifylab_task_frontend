@@ -3,6 +3,7 @@ import { useGetAllPostsQuery, useCreatePostMutation, useTogglePostLikeMutation, 
 import uploadImage from '../utils/uploadImage';
 import { useAppSelector } from '../store/hooks';
 import Comment from './Comment';
+import WhoLikedModal from './WhoLikedModal';
 
 const FeedContent = () => {
     const [postContent, setPostContent] = useState('');
@@ -12,6 +13,8 @@ const FeedContent = () => {
     const [activeCommentPostId, setActiveCommentPostId] = useState<string | null>(null);
     const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
     const [postVisibility, setPostVisibility] = useState<'public' | 'private'>('public');
+    const [whoLikedModalOpen, setWhoLikedModalOpen] = useState(false);
+    const [selectedPostIdForLikes, setSelectedPostIdForLikes] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { user } = useAppSelector((state) => state.auth);
 
@@ -186,7 +189,16 @@ const FeedContent = () => {
                                         {post.image && <div className="_feed_inner_timeline_image"><img src={post.image} alt="" className="_time_img" style={{ width: '100%', borderRadius: '8px' }} /></div>}
                                     </div>
                                     <div className="_feed_inner_timeline_total_reacts _padd_r24 _padd_l24 _mar_b26">
-                                        <div className="_feed_inner_timeline_total_reacts_image">
+                                        <div
+                                            className="_feed_inner_timeline_total_reacts_image"
+                                            onClick={() => {
+                                                if (post.likes.length > 0) {
+                                                    setSelectedPostIdForLikes(post._id);
+                                                    setWhoLikedModalOpen(true);
+                                                }
+                                            }}
+                                            style={{ cursor: post.likes.length > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {post.likes.length > 0 && (<><img src="/assets/images/react_img1.png" alt="Like" className="_react_img1" /><p className="_feed_inner_timeline_total_reacts_para">{post.likes.length}</p></>)}
                                         </div>
                                         <div className="_feed_inner_timeline_total_reacts_txt">
@@ -268,6 +280,13 @@ const FeedContent = () => {
                     )}
                 </div>
             </div>
+            {selectedPostIdForLikes && (
+                <WhoLikedModal
+                    postId={selectedPostIdForLikes}
+                    isOpen={whoLikedModalOpen}
+                    onClose={() => setWhoLikedModalOpen(false)}
+                />
+            )}
         </div>
     );
 };
