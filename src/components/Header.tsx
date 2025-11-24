@@ -1,11 +1,19 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useAppSelector } from '../store/hooks';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { logout } from '../store/slices/authSlice';
 
 const Header = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const { user } = useAppSelector((state) => state.auth);
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate('/login');
+    };
     return (
         <>
             {/* Desktop Menu */}
@@ -160,7 +168,7 @@ const Header = () => {
                                             </Link>
                                         </li>
                                         <li className="_nav_dropdown_list_item">
-                                            <Link to="/login" className="_nav_dropdown_link">
+                                            <button onClick={handleLogout} className="_nav_dropdown_link" style={{ width: '100%', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }}>
                                                 <div className="_nav_drop_info">
                                                     <span>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 19 19">
@@ -169,12 +177,20 @@ const Header = () => {
                                                     </span>
                                                     Log Out
                                                 </div>
-                                            </Link>
+                                            </button>
                                         </li>
                                     </ul>
                                 </div>
                             )}
                         </div>
+<button onClick={handleLogout} className="_nav_dropdown_link" style={{border: 'none', background: 'none', cursor: 'pointer', marginLeft:'5px' }}>
+                                                    <span>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 19 19">
+                                                            <path stroke="#377DFF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6.667 18H2.889A1.889 1.889 0 011 16.111V2.89A1.889 1.889 0 012.889 1h3.778M13.277 14.222L18 9.5l-4.723-4.722M18 9.5H6.667" />
+                                                        </svg>
+                                                    </span>
+                                                
+                                            </button>
                     </div>
                 </div>
             </nav>

@@ -116,7 +116,47 @@ export const postApi = createApi({
             providesTags: ['Post'],
         }),
 
+        togglePostLike: builder.mutation<PostResponse, string>({
+            query: (postId) => ({
+                url: `/posts/${postId}/like`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Post'],
+        }),
 
+        addComment: builder.mutation<PostResponse, { postId: string; content: string }>({
+            query: ({ postId, content }) => ({
+                url: `/posts/${postId}/comments`,
+                method: 'POST',
+                body: { content },
+            }),
+            invalidatesTags: ['Post'],
+        }),
+
+        toggleCommentLike: builder.mutation<PostResponse, { postId: string; commentId: string }>({
+            query: ({ postId, commentId }) => ({
+                url: `/posts/${postId}/comments/${commentId}/like`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Post'],
+        }),
+
+        addReply: builder.mutation<PostResponse, { postId: string; commentId: string; content: string }>({
+            query: ({ postId, commentId, content }) => ({
+                url: `/posts/${postId}/comments/${commentId}/replies`,
+                method: 'POST',
+                body: { content },
+            }),
+            invalidatesTags: ['Post'],
+        }),
+
+        toggleReplyLike: builder.mutation<PostResponse, { postId: string; commentId: string; replyId: string }>({
+            query: ({ postId, commentId, replyId }) => ({
+                url: `/posts/${postId}/comments/${commentId}/replies/${replyId}/like`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Post'],
+        }),
     }),
 });
 
@@ -124,5 +164,9 @@ export const postApi = createApi({
 export const {
     useCreatePostMutation,
     useGetAllPostsQuery,
-
+    useTogglePostLikeMutation,
+    useAddCommentMutation,
+    useToggleCommentLikeMutation,
+    useAddReplyMutation,
+    useToggleReplyLikeMutation,
 } = postApi;
