@@ -1,10 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '../store';
 
-// API base URL - adjust this based on your backend
-const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
+export const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 
-// Types for API requests and responses
 export interface LoginRequest {
     email: string;
     password: string;
@@ -37,7 +35,6 @@ export interface AuthResponse {
     data: User;
 }
 
-// Create the auth API slice
 export const authApi = createApi({
     reducerPath: 'authApi',
     baseQuery: fetchBaseQuery({
@@ -77,7 +74,6 @@ export const authApi = createApi({
     }),
 });
 
-// Export hooks for usage in components
 export const {
     useLoginMutation,
     useRegisterMutation,

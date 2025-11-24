@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useAppSelector } from '../store/hooks';
 
 const Header = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-
+    const { user } = useAppSelector((state) => state.auth);
     return (
         <>
             {/* Desktop Menu */}
@@ -103,10 +104,13 @@ const Header = () => {
                         </ul>
                         <div className="_header_nav_profile">
                             <div className="_header_nav_profile_image">
-                                <img src="/assets/images/profile.png" alt="Image" className="_nav_profile_img" />
-                            </div>
+                                <div className="_feed_inner_timeline_post_box_image">
+                                    <div className="_avatar_letter_small">
+                                        {user?.firstName?.charAt(0)}
+                                    </div>
+                                </div>                            </div>
                             <div className="_header_nav_dropdown">
-                                <p className="_header_nav_para">Dylan Field</p>
+                                <p className="_header_nav_para">{user?.firstName}</p>
                                 <button
                                     className="_header_nav_dropdown_btn _dropdown_toggle"
                                     type="button"
