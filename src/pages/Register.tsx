@@ -1,7 +1,79 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useRegisterMutation } from '../store/api/authApi';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { setCredentials } from '../store/slices/authSlice';
 import '../styles/auth.css';
 
 const Register = () => {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+    const [register, { isLoading }] = useRegisterMutation();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/feed', { replace: true });
+        }
+    }, [isAuthenticated])
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setErrorMessage('');
+
+        if (!firstName || !lastName || !email || !password || !confirmPassword) {
+            setErrorMessage('Please fill in all fields');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setErrorMessage('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 6) {
+            setErrorMessage('Password must be at least 6 characters long');
+            return;
+        }
+
+        if (!agreedToTerms) {
+            setErrorMessage('Please agree to the terms and conditions');
+            return;
+        }
+
+        try {
+            const result = await register({
+                firstName,
+                lastName,
+                email,
+                password
+            }).unwrap();
+
+            if (result.token) {
+                dispatch(setCredentials({
+                    user: result.data,
+                    token: result.token,
+                }));
+                navigate('/feed', { replace: true });
+            } else {
+                navigate('/login', { replace: true });
+            }
+        } catch (error: any) {
+            console.error('Registration error:', error);
+            setErrorMessage(error?.data?.message || 'Registration failed. Please try again.');
+        }
+    };
+
     return (
         <section className="_social_registration_wrapper _layout_main_wrapper">
             <div className="_shape_one">
@@ -43,24 +115,80 @@ const Register = () => {
                                 <div className="_social_registration_content_bottom_txt _mar_b40">
                                     <span>Or</span>
                                 </div>
-                                <form className="_social_registration_form">
+
+                                {errorMessage && (
+                                    <div style={{
+                                        padding: '10px',
+                                        marginBottom: '20px',
+                                        backgroundColor: '#fee',
+                                        color: '#c00',
+                                        borderRadius: '4px',
+                                        fontSize: '14px'
+                                    }}>
+                                        {errorMessage}
+                                    </div>
+                                )}
+
+                                <form className="_social_registration_form" onSubmit={handleSubmit}>
                                     <div className="row">
                                         <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                             <div className="_social_registration_form_input _mar_b14">
+                                                <label className="_social_registration_label _mar_b8">First Name</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control _social_registration_input"
+                                                    value={firstName}
+                                                    onChange={(e) => setFirstName(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                            <div className="_social_registration_form_input _mar_b14">
+                                                <label className="_social_registration_label _mar_b8">Last Name</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control _social_registration_input"
+                                                    value={lastName}
+                                                    onChange={(e) => setLastName(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                            <div className="_social_registration_form_input _mar_b14">
                                                 <label className="_social_registration_label _mar_b8">Email</label>
-                                                <input type="email" className="form-control _social_registration_input" />
+                                                <input
+                                                    type="email"
+                                                    className="form-control _social_registration_input"
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    required
+                                                />
                                             </div>
                                         </div>
                                         <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                             <div className="_social_registration_form_input _mar_b14">
                                                 <label className="_social_registration_label _mar_b8">Password</label>
-                                                <input type="password" className="form-control _social_registration_input" />
+                                                <input
+                                                    type="password"
+                                                    className="form-control _social_registration_input"
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    required
+                                                />
                                             </div>
                                         </div>
                                         <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                             <div className="_social_registration_form_input _mar_b14">
                                                 <label className="_social_registration_label _mar_b8">Repeat Password</label>
-                                                <input type="password" className="form-control _social_registration_input" />
+                                                <input
+                                                    type="password"
+                                                    className="form-control _social_registration_input"
+                                                    value={confirmPassword}
+                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                    required
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -69,12 +197,12 @@ const Register = () => {
                                             <div className="form-check _social_registration_form_check">
                                                 <input
                                                     className="form-check-input _social_registration_form_check_input"
-                                                    type="radio"
-                                                    name="flexRadioDefault"
-                                                    id="flexRadioDefault2"
-                                                    defaultChecked
+                                                    type="checkbox"
+                                                    id="agreeTerms"
+                                                    checked={agreedToTerms}
+                                                    onChange={(e) => setAgreedToTerms(e.target.checked)}
                                                 />
-                                                <label className="form-check-label _social_registration_form_check_label" htmlFor="flexRadioDefault2">
+                                                <label className="form-check-label _social_registration_form_check_label" htmlFor="agreeTerms">
                                                     I agree to terms & conditions
                                                 </label>
                                             </div>
@@ -83,8 +211,12 @@ const Register = () => {
                                     <div className="row">
                                         <div className="col-lg-12 col-md-12 col-xl-12 col-sm-12">
                                             <div className="_social_registration_form_btn _mar_t40 _mar_b60">
-                                                <button type="button" className="_social_registration_form_btn_link _btn1">
-                                                    Register now
+                                                <button
+                                                    type="submit"
+                                                    className="_social_registration_form_btn_link _btn1"
+                                                    disabled={isLoading}
+                                                >
+                                                    {isLoading ? 'Registering...' : 'Register now'}
                                                 </button>
                                             </div>
                                         </div>
